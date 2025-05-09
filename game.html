@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SuperseedXYZ Slither</title>
+    <link href="https://fonts.googleapis.com/css2?family=Coming+Soon&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: radial-gradient(circle at center, #0E273B 0%, #93D0CF 100%); /* Gradient วงกลม */
+            font-family: 'Coming Soon', cursive;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* เพิ่มโลโก้ Superseed จางๆ ตรงกลาง */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: url('https://raw.githubusercontent.com/superseed-xyz/brand-kit/main/logos-wordmarks/logos/large-white.svg') no-repeat center/contain;
+            opacity: 0.1; /* จางเพื่อไม่ให้รบกวนเมนู */
+            z-index: 0;
+        }
+
+        /* เพิ่มเมล็ดพันธุ์ลอยด้วย CSS animation */
+        .seed-particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #FFD700; /* สีทองจาก Brand Kit */
+            border-radius: 50%;
+            opacity: 0.7;
+            animation: float 8s infinite ease-in-out;
+            z-index: 0;
+        }
+
+        /* ตำแหน่งเมล็ดพันธุ์กระจาย */
+        .seed-particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; }
+        .seed-particle:nth-child(2) { left: 80%; top: 30%; animation-delay: 1s; }
+        .seed-particle:nth-child(3) { left: 20%; top: 70%; animation-delay: 2s; }
+        .seed-particle:nth-child(4) { left: 70%; top: 10%; animation-delay: 3s; }
+        .seed-particle:nth-child(5) { left: 50%; top: 80%; animation-delay: 4s; }
+        .seed-particle:nth-child(6) { left: 30%; top: 40%; animation-delay: 5s; }
+        .seed-particle:nth-child(7) { left: 90%; top: 60%; animation-delay: 6s; }
+
+        /* อนิเมชันลอยขึ้นลง */
+        @keyframes float {
+            0% { transform: translateY(0); opacity: 0.7; }
+            50% { transform: translateY(-20px); opacity: 1; }
+            100% { transform: translateY(0); opacity: 0.7; }
+        }
+
+        #game-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            border: 5px solid #1e3c72;
+            border-radius: 10px;
+            background: #0E273B;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        #main-menu {
+            text-align: center;
+            color: #fff;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            background: rgba(147, 208, 207, 0.9); /* ปรับให้โปร่งใสเพื่อเห็นพื้นหลัง */
+            padding: 20px;
+            border: 3px solid #2a5298;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+        }
+
+        #logo {
+            width: 300px;
+            margin-bottom: 25px;
+        }
+
+        #main-menu h1 {
+            font-size: 48px;
+            margin: 0 0 20px 0;
+            color: #0E273B;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        #username, #snake-skin {
+            display: block;
+            margin: 10px auto;
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+            width: 200px;
+            font-family: 'Coming Soon', cursive;
+            background: rgba(255, 255, 255, 0.9);
+            color: #0E273B;
+        }
+
+        #supr-coins, #best-score {
+            font-size: 18px;
+            margin: 5px 0;
+            color: #0E273B;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        #main-menu button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+            background: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: 'Coming Soon', cursive;
+        }
+
+        #main-menu button:hover {
+            background: #388E3C;
+        }
+
+        #restart-button {
+            display: none;
+        }
+
+        #game-canvas {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border: 3px solid #2a5298;
+            border-radius: 5px;
+            background: #0E273B;
+        }
+
+        #score-board {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 60, 114, 0.9);
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            color: #fff;
+            display: none;
+            gap: 20px;
+            font-family: 'Coming Soon', cursive;
+        }
+
+        #score-board span {
+            font-size: 18px;
+        }
+
+        #score-board span span {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        #leaderboard {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            width: 400px;
+            color: #fff;
+            display: none;
+            font-family: 'Coming Soon', cursive;
+        }
+
+        #leaderboard h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #leaderboard-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .leaderboard-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+
+        .leaderboard-entry:hover {
+            transform: scale(1.02);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .leaderboard-entry span {
+            flex: 1;
+            text-align: center;
+        }
+
+        .leaderboard-entry span:nth-child(1) {
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        #close-leaderboard {
+            display: block;
+            margin: 15px auto 0;
+            padding: 8px 20px;
+            background: #ff4444;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: 'Coming Soon', cursive;
+        }
+
+        #close-leaderboard:hover {
+            background: #cc0000;
+        }
+
+        #shop {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #2a5298, #1e3c72);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            width: 400px;
+            color: #fff;
+            display: none;
+            font-family: 'Coming Soon', cursive;
+        }
+
+        #shop h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #shop-supr-balance {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        #shop-supr-balance img {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+        }
+
+        .shop-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        .shop-item img {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+
+        #shop button {
+            padding: 8px 15px;
+            background: linear-gradient(45deg, #4caf50, #66bb6a);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-family: 'Coming Soon', cursive;
+        }
+
+        #shop button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        #close-shop {
+            display: block;
+            margin: 15px auto 0;
+            padding: 8px 20px;
+            background: #ff4444;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: 'Coming Soon', cursive;
+        }
+
+        #close-shop:hover {
+            background: #cc0000;
+        }
+
+        #game-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #FFD700;
+            font-size: 24px;
+            text-shadow: 2px 2px 4px #000;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: none;
+            transition: opacity 0.5s;
+            font-family: 'Coming Soon', cursive;
+        }
+    </style>
+</head>
+<body>
+    <!-- เพิ่มเมล็ดพันธุ์ลอย -->
+    <div class="seed-particle"></div>
+    <div class="seed-particle"></div>
+    <div class="seed-particle"></div>
+    <div class="seed-particle"></div>
+    <div class="seed-particle"></div>
+    <div class="seed-particle"></div>
+    <div class="seed-particle"></div>
+
+    <div id="game-container">
+        <!-- หน้าจอหลัก -->
+        <div id="main-menu">
+            <img src="images/large-black.svg" alt="Superseed Logo" id="logo" onerror="this.style.display='none'; console.log('Failed to load logo');">
+            <h1>Superseed Slither</h1>
+            <input type="text" id="username" placeholder="Enter Username" maxlength="15">
+            <select id="snake-skin">
+                <option value="white" data-icon="images/custom-snake.png">White Snake</option>
+                <option value="gold" data-icon="images/custom-snake.png">Gold Snake</option>
+                <option value="blue" data-icon="images/custom-snake.png">Blue Snake</option>
+            </select>
+            <p id="supr-coins">SUPR Coins: <span id="supr-balance">0</span></p>
+            <p id="best-score">Your Best Score: <span id="personal-best">0</span></p>
+            <button id="start-button">Start Game</button>
+            <button id="restart-button" style="display: none;">Play Again</button>
+            <button id="shop-button">Shop</button>
+            <button id="view-leaderboard-button">View Leaderboard</button>
+            <!-- ร้านค้า -->
+            <div id="shop" style="display: none;">
+                <h2>Shop</h2>
+                <p id="shop-supr-balance"></p>
+                <div class="shop-item">
+                    <img src="images/btc.png" alt="BTC" class="coin-icon" onerror="this.style.display='none';">
+                    <span>BTC (100 SUPR)</span>
+                    <button id="buy-btc">Buy</button>
+                </div>
+                <div class="shop-item">
+                    <img src="images/eth.png" alt="ETH" class="coin-icon" onerror="this.style.display='none';">
+                    <span>ETH (100 SUPR)</span>
+                    <button id="buy-eth">Buy</button>
+                </div>
+                <div class="shop-item">
+                    <img src="images/op.png" alt="OP" class="coin-icon" onerror="this.style.display='none';">
+                    <span>OP (100 SUPR)</span>
+                    <button id="buy-op">Buy</button>
+                </div>
+                <p>Owned: BTC <span id="btc-balance">0</span> | ETH <span id="eth-balance">0</span> | OP <span id="op-balance">0</span></p>
+                <button id="close-shop">Close</button>
+            </div>
+            <!-- Leaderboard -->
+            <div id="leaderboard" style="display: none;">
+                <h2>Leaderboard</h2>
+                <div id="leaderboard-list"></div>
+                <button id="close-leaderboard">Close</button>
+            </div>
+        </div>
+
+        <!-- พื้นที่เกม -->
+        <canvas id="game-canvas"></canvas>
+        <div id="game-message"></div>
+
+        <!-- แถบคะแนน -->
+        <div id="score-board">
+            <span>Score: <span id="score">0</span></span>
+            <span>Length: <span id="length">10</span></span>
+            <span>Level: <span id="level">1</span></span>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
